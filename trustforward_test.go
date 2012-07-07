@@ -2,7 +2,7 @@ package trustforward_test
 
 import (
 	"flag"
-	"github.com/nshah/go.trustforward"
+	"github.com/daaku/go.trustforward"
 	"net/http"
 	"testing"
 )
