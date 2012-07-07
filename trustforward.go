@@ -1,5 +1,7 @@
 // Package trustforward provides wrappers that trust X-Forwarded-*
-// headers when looking up certain values.
+// headers when looking up certain values. Using this package to access
+// the values allows you to control at runtime (via a flag) whether the
+// values will be trusted.
 package trustforward
 
 import (
