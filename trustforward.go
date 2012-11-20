@@ -28,6 +28,10 @@ func Scheme(r *http.Request) string {
 		if fwdScheme := r.Header.Get("x-forwarded-proto"); fwdScheme != "" {
 			return fwdScheme
 		}
+		const cfHttps = `{"scheme":"https"}`
+		if cfVisitor := r.Header.Get("Cf-Visitor"); cfVisitor == cfHttps {
+			return "https"
+		}
 	}
 	if r.TLS != nil {
 		return "https"
@@ -40,6 +44,9 @@ func Remote(r *http.Request) string {
 	if *trust {
 		if fwdRemote := r.Header.Get("x-forwarded-for"); fwdRemote != "" {
 			return fwdRemote
+		}
+		if cfConnectingIp := r.Header.Get("Cf-Connecting-Ip"); cfConnectingIp != "" {
+			return cfConnectingIp
 		}
 	}
 	return r.RemoteAddr
