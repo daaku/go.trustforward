@@ -4,17 +4,17 @@
 // values will be trusted.
 package trustforward
 
-import (
-	"flag"
-	"net/http"
-)
+import "net/http"
 
-var trust = flag.Bool(
-	"trustforward", false, "Control trust of x-forwarded headers.")
+// Forwarded enables or disables X-Forwarded or CloudFlare headers.
+type Forwarded struct {
+	X          bool
+	CloudFlare bool
+}
 
 // Get the Host.
-func Host(r *http.Request) string {
-	if *trust {
+func (f *Forwarded) Host(r *http.Request) string {
+	if f.X {
 		if fwdHost := r.Header.Get("x-forwarded-host"); fwdHost != "" {
 			return fwdHost
 		}
@@ -23,12 +23,14 @@ func Host(r *http.Request) string {
 }
 
 // Get the Scheme.
-func Scheme(r *http.Request) string {
-	if *trust {
+func (f *Forwarded) Scheme(r *http.Request) string {
+	if f.CloudFlare {
 		const cfHttps = `{"scheme":"https"}`
 		if cfVisitor := r.Header.Get("Cf-Visitor"); cfVisitor == cfHttps {
 			return "https"
 		}
+	}
+	if f.X {
 		if fwdScheme := r.Header.Get("x-forwarded-proto"); fwdScheme != "" {
 			return fwdScheme
 		}
@@ -40,11 +42,13 @@ func Scheme(r *http.Request) string {
 }
 
 // Get the Remote Address.
-func Remote(r *http.Request) string {
-	if *trust {
+func (f *Forwarded) Remote(r *http.Request) string {
+	if f.CloudFlare {
 		if cfConnectingIp := r.Header.Get("Cf-Connecting-Ip"); cfConnectingIp != "" {
 			return cfConnectingIp
 		}
+	}
+	if f.X {
 		if fwdRemote := r.Header.Get("x-forwarded-for"); fwdRemote != "" {
 			return fwdRemote
 		}
